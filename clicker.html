@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Y Coin</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            background-color: #000;
+            background-image: linear-gradient(to top, #f4b400 20%, #000 80%);
+            color: white;
+            padding-top: 15px;
+            min-height: 100vh;
+        }
+        .cover {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url('https://cdn.pixabay.com/photo/2022/03/12/07/29/dragon-7063555_1280.png'); /* Загрузочный экран */
+            background-size: cover;
+            background-position: center;
+            z-index: 999; /* Находится выше остальных элементов */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 36px;
+            font-weight: bold;
+            color: white;
+        }
+        .coin {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background-image: url('https://yt3.googleusercontent.com/p69yRAkQfx3-JwE1U-ffxSR0o9WoAiVYDWlAeaXPgio1Pu8kqmXJlepUic6pIe3SAHn8YyWwiL4=s160-c-k-c0x00ffffff-no-rj');
+            background-size: cover;
+            background-color: gold;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 15px 0;
+            cursor: pointer;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.6);
+        }
+        .info {
+            font-size: 24px;
+            margin: 10px 0;
+        }
+        .clicks-remaining {
+            width: 80%; /* Измененный размер */
+            max-width: 350px; /* Ограничение максимальной ширины */
+            height: 25px; /* Высота полосы */
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 50px 0 15px 0;
+        }
+        .clicks-bar {
+            height: 100%;
+            background-color: #f4b400;
+            width: 100%;
+            transition: width 0.2s ease;
+        }
+        .small-icon {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            vertical-align: middle;
+            margin-right: 5px;
+        }
+        .task {
+            margin-top: 30px;
+            background-color: #444;
+            padding: 15px;
+            border-radius: 10px;
+            width: 80%;
+            max-width: 350px;
+        }
+        .task button {
+            background-color: #f4b400;
+            border: none;
+            color: black;
+            padding: 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="cover" id="cover">
+        Загрузка игры...
+    </div>
+    <div id="game" style="display: none;">
+        <h1>Y Coin</h1>
+        <div id="usernameDisplay" class="info"></div>
+        <div class="info" style="margin-top: 50px;">
+            <img class="small-icon" src="https://yt3.googleusercontent.com/p69yRAkQfx3-JwE1U-ffxSR0o9WoAiVYDWlAeaXPgio1Pu8kqmXJlepUic6pIe3SAHn8YyWwiL4=s160-c-k-c0x00ffffff-no-rj" alt="Иконка монеты">
+            <span id="clickCount">0</span>
+        </div>
+        <div class="coin" onclick="clickCoin()"></div>
+
+        <div class="clicks-remaining">
+            <div id="clicksBar" class="clicks-bar"></div>
+        </div>
+
+        <div id="taskContainer" class="task" style="display: none;">
+            <h2>Задание</h2>
+            <p>Подпишитесь на нашего Telegram-бота, чтобы получить 1000 монет!</p>
+            <p><strong>@WalletA7_Bot</strong></p>
+            <button onclick="getCoins()">Получить 1000 монет</button>
+        </div>
+    </div>
+
+    <script>
+        let clickCount = parseInt(localStorage.getItem('clickCount')) || 0;
+        let clicksLeft = parseInt(localStorage.getItem('clicksLeft')) || 1500;
+        let username = localStorage.getItem('username');
+        let taskCompleted = localStorage.getItem('taskCompleted') === 'true'; // Проверяем, выполнено ли задание
+
+        function promptUsername() {
+            if (!username) {
+                username = prompt("Добро пожаловать! Введите своё имя:");
+                localStorage.setItem('username', username);
+            }
+            document.getElementById('usernameDisplay').innerText = username;
+        }
+
+        function updateProgressBar() {
+            const progress = (clicksLeft / 1500) * 100;
+            document.getElementById('clicksBar').style.width = progress + "%";
+        }
+
+        function clickCoin() {
+            if (clicksLeft > 0) {
+                clickCount++;
+                clicksLeft--;
+                document.getElementById('clickCount').textContent = clickCount;
+
+                localStorage.setItem('clickCount', clickCount);
+                localStorage.setItem('clicksLeft', clicksLeft);
+                updateProgressBar();
+            } else {
+                alert("Вы достигли лимита кликов за этот час!");
+            }
+        }
+
+        function getCoins() {
+            // Перенаправление на Telegram-бота
+            window.open('https://t.me/WalletA7_Bot', '_blank');
+
+            // Начисление монет через 10 секунд
+            setTimeout(() => {
+                clickCount += 1000; // Добавляем 1000 монет
+                localStorage.setItem('clickCount', clickCount);
+                document.getElementById('clickCount').textContent = clickCount;
+                alert("Поздравляем! Вы получили 1000 монет!");
+                localStorage.setItem('taskCompleted', 'true'); // Устанавливаем флаг задания как выполненное
+                document.getElementById('taskContainer').style.display = 'none'; // Скрываем задание
+            }, 10000); // 10 секунд
+        }
+
+        function resetClicksHourly() {
+            setInterval(() => {
+                clicksLeft = 1500;
+                updateProgressBar();
+                localStorage.setItem('clicksLeft', clicksLeft);
+            }, 3600000); // 1 час
+        }
+
+        function showGame() {
+            document.getElementById('cover').style.display = 'none'; // Скрываем обложку
+            document.getElementById('game').style.display = 'block'; // Показываем игру
+        }
+
+        // Показываем обложку 5 секунд
+        setTimeout(showGame, 5000);
+
+        // Проверка, нужно ли отображать задание
+        promptUsername();
+        document.getElementById('clickCount').textContent = clickCount;
+        updateProgressBar();
+        resetClicksHourly();
+        if (!taskCompleted) {
+            document.getElementById('taskContainer').style.display = 'block'; // Показываем задание, если оно не выполнено
+        }
+    </script>
+
+</body>
+</html>
